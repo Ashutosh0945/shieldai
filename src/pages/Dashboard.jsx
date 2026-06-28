@@ -19,16 +19,6 @@ const HOTSPOTS = [
 const SEV = { danger:'#E05252', warn:'#F5A623', safe:'#00C896' }
 const SEV_BG = { danger:'rgba(224,82,82,0.15)', warn:'rgba(245,166,35,0.15)', safe:'rgba(0,200,150,0.15)' }
 
-const FEED = [
-  { icon:'📞', type:'danger', label:'Digital Arrest Scam',  text:'Fake ED officer targeting retirees', city:'Delhi' },
-  { icon:'💸', type:'warn',   label:'UPI Fraud',            text:'Rs.48,000 siphoned via QR redirect', city:'Pune' },
-  { icon:'🎭', type:'danger', label:'Deepfake Call',        text:'AI voice clone impersonating a judge', city:'Hyderabad' },
-  { icon:'🏧', type:'warn',   label:'Counterfeit Note',     text:'Fake Rs.500 batch flagged at 3 ATMs', city:'Kolkata' },
-  { icon:'📱', type:'safe',   label:'Warning Issued',       text:'TRAI SIM-block scam spreading', city:'Nationwide' },
-  { icon:'💼', type:'warn',   label:'Job Scam',             text:'89 new work-from-home fraud victims', city:'Bengaluru' },
-  { icon:'🔐', type:'danger', label:'OTP Interception',     text:'SIM-swap cluster — 3 telecom nodes', city:'Mumbai' },
-  { icon:'🛒', type:'warn',   label:'Shopping Fraud',       text:'Fake Flipkart checkout clone active', city:'Jaipur' },
-]
 
 const INSIGHTS = [
   '🔴 Spike: Digital arrest calls up 34% in Delhi NCR — targeting +91-98xx numbers.',
@@ -67,7 +57,6 @@ export default function Dashboard() {
   const [insightIdx, setIIdx]     = useState(0)
   const [insightVis, setIVis]     = useState(true)
   const [pulseIdx, setPulse]      = useState(null)
-  const [liveN, setLiveN]         = useState(2847)
   const [chatOpen, setChatOpen]   = useState(false)
   const [chatInput, setChatInput] = useState('')
   const [chatBusy, setChatBusy]   = useState(false)
@@ -102,10 +91,8 @@ export default function Dashboard() {
 
   // Pulse random hotspot + increment counter every 3s
   useEffect(() => {
-    getDashboardStats().then(d => { if (d.reportsToday > 0) setLiveN(d.reportsToday) }).catch(() => {})
     const id = setInterval(() => {
       setPulse(Math.floor(Math.random() * HOTSPOTS.length))
-      setLiveN(c => c + Math.floor(Math.random()*3) + 1)
       setTimeout(() => setPulse(null), 1800)
     }, 3000)
     return () => clearInterval(id)
@@ -168,13 +155,7 @@ export default function Dashboard() {
             onMouseLeave={e => { e.currentTarget.style.transform='none'; e.currentTarget.style.boxShadow='0 4px 24px rgba(0,200,150,0.4)' }}>
               🤖 <span>Ask AI Assistant</span>
             </button>
-            <div style={{ textAlign:'right' }}>
-              <div style={{ fontFamily:"'Sora',sans-serif", fontSize:'1.3rem', fontWeight:800, color:'#fff' }}>
-                {liveN.toLocaleString('en-IN')}
-              </div>
-              <div style={{ fontSize:'0.7rem', color:'var(--muted)' }}>total today</div>
-            </div>
-            <span className="live-pill"><span className="dot"/>Live</span>
+
           </div>
         </div>
       </div>
@@ -332,7 +313,7 @@ export default function Dashboard() {
                   { city:'Kolkata',    risk:48, col:'#F5A623' },
                   { city:'Chennai',    risk:32, col:'#00C896' },
                 ].map((c,i) => (
-                  <div key={i} style={{ marginBottom:10 }}>
+                  <div key={i} style={{ marginBottom:i<5?10:0 }}>
                     <div style={{ display:'flex', justifyContent:'space-between', marginBottom:4 }}>
                       <span style={{ fontSize:'0.78rem', color:'var(--text)', fontWeight:600 }}>{c.city}</span>
                       <span style={{ fontSize:'0.75rem', fontWeight:800, color:c.col, fontFamily:"'Sora',sans-serif" }}>{c.risk}%</span>
@@ -342,7 +323,7 @@ export default function Dashboard() {
                     </div>
                   </div>
                 ))}
-                <button onClick={() => setChatOpen(true)} style={{ width:'100%', marginTop:6, background:'rgba(0,200,150,0.1)', border:'1px solid rgba(0,200,150,0.25)', borderRadius:8, padding:'8px', color:'var(--accent)', fontSize:'0.78rem', fontWeight:700, cursor:'pointer', fontFamily:'Inter,sans-serif' }}>
+                <button onClick={() => setChatOpen(true)} style={{ width:'100%', marginTop:14, background:'rgba(0,200,150,0.1)', border:'1px solid rgba(0,200,150,0.25)', borderRadius:8, padding:'8px', color:'var(--accent)', fontSize:'0.78rem', fontWeight:700, cursor:'pointer', fontFamily:'Inter,sans-serif' }}>
                   🤖 Ask AI for details →
                 </button>
               </div>
@@ -353,15 +334,36 @@ export default function Dashboard() {
                   🤖 AI Pattern Summary
                 </div>
                 {[
-                  { l:'Top scam type',       v:'Digital Arrest', c:'var(--danger)' },
-                  { l:'Peak fraud window',    v:'2 PM – 4 PM IST', c:'var(--warn)' },
-                  { l:'Fastest growing scam', v:'Deepfake calls',  c:'var(--warn)' },
-                  { l:'Most targeted city',   v:'Delhi NCR',       c:'var(--sky)'  },
-                  { l:'Scams blocked today',  v:'3,241',           c:'var(--accent)'},
+                  { l:'Top scam type',        v:'Digital Arrest', c:'var(--danger)' },
+                  { l:'Peak fraud window',     v:'2 PM – 4 PM IST', c:'var(--warn)' },
+                  { l:'Fastest growing scam',  v:'Deepfake calls',  c:'var(--warn)'  },
+                  { l:'Most targeted city',    v:'Delhi NCR',       c:'var(--sky)'   },
+                  { l:'Scams blocked today',   v:'3,241',           c:'var(--accent)'},
                 ].map((s,i) => (
                   <div key={i} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'7px 0', borderBottom:i<4?'1px solid rgba(255,255,255,0.04)':'none' }}>
                     <span style={{ fontSize:'0.77rem', color:'var(--muted)' }}>{s.l}</span>
                     <span style={{ fontSize:'0.77rem', fontWeight:700, color:s.c }}>{s.v}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* AI Threat Timeline */}
+              <div className="card" style={{ background:'linear-gradient(135deg,rgba(79,163,209,0.06),transparent)', border:'1px solid rgba(79,163,209,0.18)' }}>
+                <div style={{ fontSize:'0.67rem', fontWeight:700, textTransform:'uppercase', letterSpacing:'0.12em', color:'var(--sky)', marginBottom:14 }}>
+                  🕐 AI Threat Timeline — Today
+                </div>
+                {[
+                  { time:'09:12 AM', event:'Digital arrest spike detected — Delhi NCR', col:'#E05252' },
+                  { time:'11:34 AM', event:'New deepfake audio script identified', col:'#F5A623' },
+                  { time:'01:08 PM', event:'UPI fraud cluster — 3 Pune accounts flagged', col:'#E05252' },
+                  { time:'02:47 PM', event:'Counterfeit Rs.500 batch — Kolkata ATMs', col:'#F5A623' },
+                  { time:'04:15 PM', event:'Job scam site taken down — Bengaluru', col:'#00C896' },
+                  { time:'Now',      event:'AI monitoring 847 cities in real time', col:'#00C896' },
+                ].map((t,i) => (
+                  <div key={i} style={{ display:'flex', gap:10, paddingBottom: i<5?10:0, marginBottom: i<5?10:0, borderBottom: i<5?'1px solid rgba(255,255,255,0.04)':'none' }}>
+                    <span style={{ fontSize:'0.65rem', color:'var(--muted)', minWidth:58, paddingTop:1, fontFamily:"'Sora',sans-serif", fontWeight:600 }}>{t.time}</span>
+                    <span style={{ width:6, height:6, borderRadius:'50%', background:t.col, flexShrink:0, marginTop:4, boxShadow:`0 0 5px ${t.col}` }}/>
+                    <span style={{ fontSize:'0.77rem', color:'var(--text)', lineHeight:1.4 }}>{t.event}</span>
                   </div>
                 ))}
               </div>
